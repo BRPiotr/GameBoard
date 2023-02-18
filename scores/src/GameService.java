@@ -1,20 +1,24 @@
-import java.util.ArrayList;
 import java.util.List;
 
 public class GameService {
+
+    private final GameStorage store = GameStorage.getInstance();
+
     public Game startGame(Team homeTeam, Team awayTeam) {
-        return new Game(homeTeam, awayTeam);
+        Game newGame = new Game(homeTeam, awayTeam);
+        store.addGame(newGame);
+        return newGame;
     }
 
     public List<Game> getScoreBoard() {
-        return new ArrayList<>();
+        return store.listActiveGames();
     }
 
     public Game updateScore(Team homeTeam, Short homeScore, Team awayTeam, Short awayScore) {
-        return null;
+        return store.updateScore(homeTeam, homeScore, awayTeam, awayScore);
     }
 
-    public void finishGame(Team homeTeam1, Team awayTeam1) {
-
+    public void finishGame(Team homeTeam, Team awayTeam) {
+        store.finishGame(homeTeam, awayTeam);
     }
 }

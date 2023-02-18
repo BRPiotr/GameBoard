@@ -68,7 +68,9 @@ public class Game implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Game game = (Game) o;
-        return active == game.active && startDateTime.equals(game.startDateTime) && homeTeam.equals(game.homeTeam) && awayTeam.equals(game.awayTeam) && Objects.equals(homeScore, game.homeScore) && Objects.equals(awayScore, game.awayScore);
+        return active == game.active && startDateTime.equals(game.startDateTime) && homeTeam.equals(game.homeTeam)
+                && awayTeam.equals(game.awayTeam) && Objects.equals(homeScore, game.homeScore)
+                && Objects.equals(awayScore, game.awayScore);
     }
 
     @Override
