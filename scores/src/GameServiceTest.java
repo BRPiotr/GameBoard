@@ -107,6 +107,8 @@ public class GameServiceTest {
 
     @Test
     public void shouldGetStartedStoredGames() {
+        Game game0 = service.startGame(HOME_TEAM9, AWAY_TEAM9);
+        service.finishGame(HOME_TEAM9, AWAY_TEAM9);
         Game game1 = service.startGame(HOME_TEAM4, AWAY_TEAM4);
         Game game2 = service.startGame(HOME_TEAM5, AWAY_TEAM5);
 
@@ -114,6 +116,7 @@ public class GameServiceTest {
         assertNotNull(list);
         assertTrue(list.contains(game1));
         assertTrue(list.contains(game2));
+        assertFalse(list.contains(game0));
 
         service.finishGame(HOME_TEAM4, AWAY_TEAM4);
         service.finishGame(HOME_TEAM5, AWAY_TEAM5);
@@ -208,6 +211,12 @@ public class GameServiceTest {
         assertGameIsSame(result.get(2), mexico, 0, canada, 5);
         assertGameIsSame(result.get(3), argentina, 3, australia, 1);
         assertGameIsSame(result.get(4), germany, 2, france, 2);
+
+        service.finishGame(uruguay, italy);
+        service.finishGame(spain, brazil);
+        service.finishGame(mexico, canada);
+        service.finishGame(argentina, australia);
+        service.finishGame(germany, france);
     }
 
     private void assertGameIsSame(Game game, Team team1, int score1, Team team2, int score2) {
@@ -223,4 +232,18 @@ public class GameServiceTest {
         sleep(5);
     }
 
+
+    @Test
+    public void shouldNotUpdateScoreToNegativeScore() throws InterruptedException {
+        startGameAndUpdateScore(HOME_TEAM1, -1, HOME_TEAM2, 2);
+        List<Game> scoreBoard = service.getScoreBoard();
+        assertSame(1, scoreBoard.size());
+        assertGameIsSame(scoreBoard.get(0), HOME_TEAM1, 0, HOME_TEAM2, 0);
+
+        service.updateScore(HOME_TEAM1, SCORE_0, HOME_TEAM2, (short) -2);
+        assertSame(1, scoreBoard.size());
+        assertGameIsSame(scoreBoard.get(0), HOME_TEAM1, 0, HOME_TEAM2, 0);
+
+        service.finishGame(HOME_TEAM1, HOME_TEAM2);
+    }
 }

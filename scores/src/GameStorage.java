@@ -1,9 +1,14 @@
+import org.junit.platform.commons.logging.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
+
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameStorage {
+
+    Logger LOG = LoggerFactory.getLogger(GameStorage.class);
     private static GameStorage instance;
 
     private static volatile LinkedList<Game> games;
@@ -20,14 +25,13 @@ public class GameStorage {
             }
         }
         return instance;
-
     }
 
     public void addGame(Game game) {
         if (!isGameActive(game)) {
             games.add(game);
         } else {
-            System.out.println("Prevented from adding duplicate Game " + game.getHomeTeam() + " " + game.getAwayTeam());
+            LOG.warn(() -> String.format("Cannot start already active Game %s : %s", game.getHomeTeam(), game.getAwayTeam()));
         }
     }
 

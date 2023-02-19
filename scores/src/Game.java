@@ -35,6 +35,7 @@ public class Game implements Serializable {
     public Team getHomeTeam() {
         return homeTeam;
     }
+
     public Team getAwayTeam() {
         return awayTeam;
     }
