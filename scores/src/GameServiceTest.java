@@ -43,7 +43,9 @@ public class GameServiceTest {
     @Test
     public void shouldStartGameAndInitialiseWithScoreStartDateAndActive() {
         service.startGame(HOME_TEAM1, AWAY_TEAM1);
+
         List<Game> board = service.getScoreBoard();
+
         assertEquals(1, board.size());
         Game result = board.get(0);
         assertNotNull(result);
@@ -119,7 +121,6 @@ public class GameServiceTest {
 
     @Test
     public void shouldScoreBoardBeOrderedByTotalScoreAndStartDate() throws InterruptedException {
-
         service.startGame(HOME_TEAM6, AWAY_TEAM6);
         service.updateScore(HOME_TEAM6, SCORE_1, AWAY_TEAM6, SCORE_1);
         sleep(10);
@@ -176,6 +177,50 @@ public class GameServiceTest {
         service.updateScore(HOME_TEAM9, SCORE_1, AWAY_TEAM9, SCORE_1);
         List<Game> scoreBoard = service.getScoreBoard();
         assertTrue(scoreBoard.isEmpty());
+    }
+
+    @Test
+    public void shouldGetScoreBoardFromExample() throws InterruptedException {
+        //given
+        Team mexico = new Team("Mexico");
+        Team canada = new Team("Canada");
+        Team spain = new Team("Spain");
+        Team brazil = new Team("Brazil");
+        Team germany = new Team("Germany");
+        Team france = new Team("France");
+        Team uruguay = new Team("Uruguay");
+        Team italy = new Team("Italy");
+        Team argentina = new Team("Argentina");
+        Team australia = new Team("Australia");
+
+        //when
+        startGameAndUpdateScore(mexico, 0, canada, 5);
+        startGameAndUpdateScore(spain, 10, brazil, 2);
+        startGameAndUpdateScore(germany, 2, france, 2);
+        startGameAndUpdateScore(uruguay, 6, italy, 6);
+        startGameAndUpdateScore(argentina, 3, australia, 1);
+        List<Game> result = service.getScoreBoard();
+
+        //then
+        assertSame(5, result.size());
+        assertGameIsSame(result.get(0), uruguay, 6, italy, 6);
+        assertGameIsSame(result.get(1), spain, 10, brazil, 2);
+        assertGameIsSame(result.get(2), mexico, 0, canada, 5);
+        assertGameIsSame(result.get(3), argentina, 3, australia, 1);
+        assertGameIsSame(result.get(4), germany, 2, france, 2);
+    }
+
+    private void assertGameIsSame(Game game, Team team1, int score1, Team team2, int score2) {
+        assertSame(team1, game.getHomeTeam());
+        assertSame(team2, game.getAwayTeam());
+        assertSame((short) score1, game.getHomeScore());
+        assertSame((short) score2, game.getAwayScore());
+    }
+
+    private void startGameAndUpdateScore(Team team1, int score1, Team team2, int score2) throws InterruptedException {
+        service.startGame(team1, team2);
+        service.updateScore(team1, (short) score1, team2, (short) score2);
+        sleep(5);
     }
 
 }

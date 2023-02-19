@@ -15,6 +15,7 @@ public class GameTest {
     @Test
     public void shouldCreateGameWithZeroZeroScore() {
         Game result = new Game(TEAM1, TEAM2);
+
         assertEquals(ZERO, result.getHomeScore());
         assertEquals(ZERO, result.getAwayScore());
     }
@@ -28,6 +29,7 @@ public class GameTest {
     @Test
     public void shouldCreateGameWithStartedDateTime() {
         Game game = new Game(TEAM1, TEAM2);
+
         assertNotNull(game.getStartDateTime());
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime result = game.getStartDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -42,9 +44,9 @@ public class GameTest {
     @Test
     public void shouldCreateGameWithTeamsAssigned() {
         Game result = new Game(TEAM1, TEAM2);
+
         assertEquals(TEAM1, result.getHomeTeam());
         assertEquals(TEAM2, result.getAwayTeam());
     }
-
 }
 
