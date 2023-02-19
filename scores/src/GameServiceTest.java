@@ -11,6 +11,7 @@ public class GameServiceTest {
 
     private static final Short SCORE_0 = 0;
     private static final Short SCORE_1 = 1;
+    private static final Short SCORE_2 = 2;
 
     private static final Team HOME_TEAM1 = new Team("homeTeam1");
     private static final Team HOME_TEAM2 = new Team("homeTeam2");
@@ -20,6 +21,7 @@ public class GameServiceTest {
     private static final Team HOME_TEAM6 = new Team("homeTeam6");
     private static final Team HOME_TEAM7 = new Team("homeTeam7");
     private static final Team HOME_TEAM8 = new Team("homeTeam8");
+    private static final Team HOME_TEAM9 = new Team("homeTeam9");
 
     private static final Team AWAY_TEAM1 = new Team("awayTeam1");
     private static final Team AWAY_TEAM2 = new Team("awayTeam2");
@@ -29,6 +31,7 @@ public class GameServiceTest {
     private static final Team AWAY_TEAM6 = new Team("awayTeam6");
     private static final Team AWAY_TEAM7 = new Team("awayTeam7");
     private static final Team AWAY_TEAM8 = new Team("awayTeam8");
+    private static final Team AWAY_TEAM9 = new Team("awayTeam9");
 
     private GameService service;
 
@@ -39,23 +42,55 @@ public class GameServiceTest {
 
     @Test
     public void shouldStartGameAndInitialiseWithScoreStartDateAndActive() {
-        Game result = service.startGame(HOME_TEAM1, AWAY_TEAM1);
+        service.startGame(HOME_TEAM1, AWAY_TEAM1);
+        List<Game> board = service.getScoreBoard();
+        assertEquals(1, board.size());
+        Game result = board.get(0);
         assertNotNull(result);
         assertEquals(HOME_TEAM1, result.getHomeTeam());
         assertEquals(AWAY_TEAM1, result.getAwayTeam());
         assertTrue(result.isActive());
         assertNotNull(result.getStartDateTime());
+
+        service.finishGame(HOME_TEAM1, AWAY_TEAM1);
     }
 
     @Test
     public void shouldUpdateScoreForProperGame() {
         service.startGame(HOME_TEAM2, AWAY_TEAM2);
-        Game result = service.updateScore(HOME_TEAM2, SCORE_1, AWAY_TEAM2, SCORE_0);
+        service.updateScore(HOME_TEAM2, SCORE_1, AWAY_TEAM2, SCORE_0);
+
+        List<Game> board = service.getScoreBoard();
+        assertEquals(1, board.size());
+        Game result = board.get(0);
+
         assertNotNull(result);
         assertEquals(SCORE_1, result.getHomeScore());
         assertEquals(SCORE_0, result.getAwayScore());
         assertEquals(HOME_TEAM2, result.getHomeTeam());
         assertEquals(AWAY_TEAM2, result.getAwayTeam());
+
+        service.finishGame(HOME_TEAM2, AWAY_TEAM2);
+    }
+
+    @Test
+    public void shouldShowRecentUpdatedScoreForProperGame() {
+        service.startGame(HOME_TEAM2, AWAY_TEAM2);
+        service.updateScore(HOME_TEAM2, SCORE_1, AWAY_TEAM2, SCORE_0);
+        service.updateScore(HOME_TEAM2, SCORE_0, AWAY_TEAM2, SCORE_1);
+        service.updateScore(HOME_TEAM2, SCORE_0, AWAY_TEAM2, SCORE_2);
+
+        List<Game> board = service.getScoreBoard();
+        assertEquals(1, board.size());
+        Game result = board.get(0);
+
+        assertNotNull(result);
+        assertEquals(SCORE_0, result.getHomeScore());
+        assertEquals(SCORE_2, result.getAwayScore());
+        assertEquals(HOME_TEAM2, result.getHomeTeam());
+        assertEquals(AWAY_TEAM2, result.getAwayTeam());
+
+        service.finishGame(HOME_TEAM2, AWAY_TEAM2);
     }
 
     @Test
@@ -77,6 +112,9 @@ public class GameServiceTest {
         assertNotNull(list);
         assertTrue(list.contains(game1));
         assertTrue(list.contains(game2));
+
+        service.finishGame(HOME_TEAM4, AWAY_TEAM4);
+        service.finishGame(HOME_TEAM5, AWAY_TEAM5);
     }
 
     @Test
@@ -91,8 +129,12 @@ public class GameServiceTest {
         service.startGame(HOME_TEAM8, AWAY_TEAM8);
         service.updateScore(HOME_TEAM8, SCORE_1, AWAY_TEAM8, SCORE_1);
 
+        service.startGame(HOME_TEAM3, AWAY_TEAM3);
+        service.updateScore(HOME_TEAM3, SCORE_2, AWAY_TEAM3, SCORE_2);
+        service.finishGame(HOME_TEAM3, AWAY_TEAM3);
+
         List<Game> scoreBoard = service.getScoreBoard();
-        assertFalse(scoreBoard.isEmpty());
+        assertEquals(3, scoreBoard.size());
         assertEquals(HOME_TEAM8.getName(), scoreBoard.get(0).getHomeTeam().getName());
         assertEquals(AWAY_TEAM8.getName(), scoreBoard.get(0).getAwayTeam().getName());
         assertEquals(2, scoreBoard.get(0).getHomeScore() + scoreBoard.get(0).getAwayScore());
@@ -104,5 +146,36 @@ public class GameServiceTest {
         assertEquals(HOME_TEAM7.getName(), scoreBoard.get(2).getHomeTeam().getName());
         assertEquals(AWAY_TEAM7.getName(), scoreBoard.get(2).getAwayTeam().getName());
         assertEquals(1, scoreBoard.get(2).getHomeScore() + scoreBoard.get(2).getAwayScore());
+
+        service.finishGame(HOME_TEAM6, AWAY_TEAM6);
+        service.finishGame(HOME_TEAM7, AWAY_TEAM7);
+        service.finishGame(HOME_TEAM8, AWAY_TEAM8);
     }
+
+    @Test
+    public void shouldNotStartGameTwice() throws InterruptedException {
+        Game game1 = service.startGame(HOME_TEAM9, AWAY_TEAM9);
+        sleep(10);
+        Game game2 = service.startGame(HOME_TEAM9, AWAY_TEAM9);
+
+        List<Game> scoreBoard = service.getScoreBoard();
+        assertEquals(1, scoreBoard.size());
+        assertTrue(scoreBoard.contains(game1));
+        assertFalse(scoreBoard.contains(game2));
+
+        service.finishGame(HOME_TEAM9, AWAY_TEAM9);
+    }
+
+    @Test
+    public void shouldNotUpdateScoreForFinishedGame() {
+        Game game = service.startGame(HOME_TEAM9, AWAY_TEAM9);
+        assertSame(SCORE_0, game.getHomeScore());
+        assertSame(SCORE_0, game.getAwayScore());
+        service.finishGame(HOME_TEAM9, AWAY_TEAM9);
+
+        service.updateScore(HOME_TEAM9, SCORE_1, AWAY_TEAM9, SCORE_1);
+        List<Game> scoreBoard = service.getScoreBoard();
+        assertTrue(scoreBoard.isEmpty());
+    }
+
 }

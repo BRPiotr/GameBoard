@@ -14,8 +14,8 @@ public class GameService {
         return store.listActiveGames();
     }
 
-    public Game updateScore(Team homeTeam, Short homeScore, Team awayTeam, Short awayScore) {
-        return store.updateScore(homeTeam, homeScore, awayTeam, awayScore);
+    public void updateScore(Team homeTeam, Short homeScore, Team awayTeam, Short awayScore) {
+        store.updateScore(homeTeam, homeScore, awayTeam, awayScore);
     }
 
     public void finishGame(Team homeTeam, Team awayTeam) {

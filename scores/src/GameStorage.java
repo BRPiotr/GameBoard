@@ -16,7 +16,7 @@ public class GameStorage {
         if (instance == null) {
             synchronized (GameStorage.class) {
                 instance = new GameStorage();
-                instance.games = new LinkedList<>();
+                GameStorage.games = new LinkedList<>();
             }
         }
         return instance;
@@ -52,21 +52,19 @@ public class GameStorage {
     }
 
     public void finishGame(Team homeTeam, Team awayTeam) {
-        games.stream().forEach(game -> {
+        games.forEach(game -> {
             if (game.getHomeTeam().equals(homeTeam) && game.getAwayTeam().equals(awayTeam) && game.isActive()) {
                 game.setActive(false);
             }
         });
     }
 
-    public Game updateScore(Team homeTeam, Short homeScore, Team awayTeam, Short awayScore) {
-        return games.stream().map(game -> {
-                    if (game.getHomeTeam().equals(homeTeam) && game.getAwayTeam().equals(awayTeam) && game.isActive()) {
-                        game.setHomeScore(homeScore);
-                        game.setAwayScore(awayScore);
-                    }
-                    return game;
-                }).filter(g -> g.getHomeTeam().equals(homeTeam) && g.getAwayTeam().equals(awayTeam) && g.isActive())
-                .toList().get(0);
+    public void updateScore(Team homeTeam, Short homeScore, Team awayTeam, Short awayScore) {
+        games.forEach(game -> {
+            if (game.getHomeTeam().equals(homeTeam) && game.getAwayTeam().equals(awayTeam) && game.isActive()) {
+                game.setHomeScore(homeScore);
+                game.setAwayScore(awayScore);
+            }
+        });
     }
 }
